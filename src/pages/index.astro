@@ -1,11 +1,87 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
+import Sidebar from '../components/Sidebar.astro';
+import SiteDisplay from '../components/SiteDisplay';
+import SearchBox from '../components/SearchBox.astro';
+import HolidayCounter from '../components/HolidayCounter.astro';
+import WeatherCard from '../components/WeatherCard.astro';
+import { siteData } from '../data/sites';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="发现导航">
+  <div class="flex h-screen bg-gray-100">
+    <Sidebar activeSites={siteData} />
+    <main class="flex-1 overflow-auto">
+      <!-- Hero Section -->
+      <div class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
+        <div class="container mx-auto px-6 py-16">
+          <h1 class="text-4xl font-bold mb-4">发现优质网站</h1>
+          <p class="text-xl opacity-90 mb-8">探索互联网中最实用的工具和资源</p>
+          <SearchBox />
+        </div>
+      </div>
+
+      <!-- Utility Components Section -->
+      <div class="container mx-auto px-6 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <!-- Holiday Counter Card -->
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold mb-4 flex items-center">
+              <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              节假日倒计时
+            </h3>
+            <HolidayCounter />
+          </div>
+
+          <!-- Weather Card -->
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold mb-4 flex items-center">
+              <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+              </svg>
+              今日天气
+            </h3>
+            <WeatherCard />
+          </div>
+
+          <!-- Quick Tools Card -->
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold mb-4 flex items-center">
+              <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              快捷工具
+            </h3>
+            <div class="grid grid-cols-2 gap-2">
+              <button class="p-2 text-sm bg-gray-50 rounded hover:bg-gray-100 transition-colors">
+                便签
+              </button>
+              <button class="p-2 text-sm bg-gray-50 rounded hover:bg-gray-100 transition-colors">
+                计算器
+              </button>
+              <button class="p-2 text-sm bg-gray-50 rounded hover:bg-gray-100 transition-colors">
+                翻译
+              </button>
+              <button class="p-2 text-sm bg-gray-50 rounded hover:bg-gray-100 transition-colors">
+                待办
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sites Display -->
+        <SiteDisplay client:load />
+      </div>
+    </main>
+  </div>
 </Layout>
+
+<style>
+  .container {
+    max-width: 1400px;
+  }
+</style>

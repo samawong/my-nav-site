@@ -1,0 +1,107 @@
+---
+// 定义节假日和节气数据
+const FESTIVALS = [
+  { name: "元旦", month: 1, day: 1 },
+  { name: "春节", month: 1, day: 29 }, // 2025年春节
+  { name: "清明节", month: 4, day: 4 },
+  { name: "劳动节", month: 5, day: 1 },
+  { name: "端午节", month: 5, day: 31 }, // 2025年端午
+  { name: "中秋节", month: 9, day: 6 },  // 2025年中秋
+  { name: "国庆节", month: 10, day: 1 }
+];
+
+const SOLAR_TERMS = [
+  { name: "小寒", month: 1, day: 5 },
+  { name: "大寒", month: 1, day: 20 },
+  { name: "立春", month: 2, day: 3 },
+  { name: "雨水", month: 2, day: 18 },
+  { name: "惊蛰", month: 3, day: 5 },
+  { name: "春分", month: 3, day: 20 },
+  { name: "清明", month: 4, day: 4 },
+  { name: "谷雨", month: 4, day: 20 },
+  { name: "立夏", month: 5, day: 5 },
+  { name: "小满", month: 5, day: 21 },
+  { name: "芒种", month: 6, day: 5 },
+  { name: "夏至", month: 6, day: 21 },
+  { name: "小暑", month: 7, day: 7 },
+  { name: "大暑", month: 7, day: 22 },
+  { name: "立秋", month: 8, day: 7 },
+  { name: "处暑", month: 8, day: 23 },
+  { name: "白露", month: 9, day: 7 },
+  { name: "秋分", month: 9, day: 23 },
+  { name: "寒露", month: 10, day: 8 },
+  { name: "霜降", month: 10, day: 23 },
+  { name: "立冬", month: 11, day: 7 },
+  { name: "小雪", month: 11, day: 22 },
+  { name: "大雪", month: 12, day: 7 },
+  { name: "冬至", month: 12, day: 21 }
+];
+
+function getUpcomingHolidays() {
+  const now = new Date();
+  // 设置时间为当天的开始（00:00:00）
+  now.setHours(0, 0, 0, 0);
+  
+  const currentYear = now.getFullYear();
+  const allDates = [...FESTIVALS, ...SOLAR_TERMS].map(holiday => {
+    // 创建今年的日期，并设置为当天开始时间
+    const thisYear = new Date(currentYear, holiday.month - 1, holiday.day);
+    thisYear.setHours(0, 0, 0, 0);
+    
+    // 如果日期已过，使用明年的日期
+    const date = thisYear < now ? new Date(currentYear + 1, holiday.month - 1, holiday.day) : thisYear;
+    date.setHours(0, 0, 0, 0);
+    
+    // 计算天数差异（使用floor而不是ceil，因为我们已经统一了时间）
+    const timeDiff = date.getTime() - now.getTime();
+    const daysLeft = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+    
+    // 判断是节日还是节气
+    const type = FESTIVALS.includes(holiday) ? 'festival' : 'solar-term';
+    
+    return {
+      name: holiday.name,
+      date: date.toISOString().split('T')[0],
+      daysLeft,
+      type
+    };
+  });
+
+  // 按剩余天数排序并返回前4个
+  return allDates
+    .sort((a, b) => a.daysLeft - b.daysLeft)
+    .slice(0, 1);
+}
+
+const holidays = getUpcomingHolidays();
+---
+
+<div class="space-y-4">
+  {holidays.map((holiday, index) => (
+    <div class={`bg-white/10 rounded-lg p-4 ${index === 0 ? 'bg-opacity-20' : 'bg-opacity-10'}`}>
+      <div class="flex justify-between items-baseline">
+        <span class="text-4xl font-bold">{holiday.daysLeft}</span>
+        <span class="text-sm opacity-75">天</span>
+      </div>
+      <div class="mt-2 flex items-center gap-2">
+        <span class={`w-2 h-2 rounded-full ${
+          holiday.type === 'festival' ? 'bg-green-400' : 'bg-blue-400'
+        }`}></span>
+        <span class="text-sm">
+          {holiday.name} ({holiday.date})
+        </span>
+      </div>
+    </div>
+  ))}
+</div>
+
+<style>
+  .bg-white\/10 {
+    transition: all 0.3s ease;
+  }
+  
+  .bg-white\/10:hover {
+    transform: translateY(-2px);
+    background-opacity: 0.15;
+  }
+</style>

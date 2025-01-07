@@ -1,0 +1,136 @@
+---
+interface Props {
+  activeSites: Record<string, any>;
+}
+
+const { activeSites } = Astro.props;
+const DEFAULT_MAIN_CATEGORY = "优质网站";
+const DEFAULT_SUB_CATEGORY = "常用网站";
+---
+
+<aside class="w-64 bg-white border-r flex flex-col h-full">
+  <div class="p-4 border-b">
+    <div class="flex items-center gap-2">
+      <img src="/logo.svg" alt="logo" class="w-8 h-8" />
+      <h2 class="text-xl font-bold">发现导航</h2>
+    </div>
+  </div>
+
+  <nav class="flex-1 overflow-y-auto">
+    <div class="space-y-2 p-4">
+      {
+        Object.entries(activeSites).map(([mainCategory, subCategories]) => (
+          <div class="category-item">
+            <button
+              class="w-full flex items-center justify-between p-2 hover:bg-gray-100 rounded font-medium"
+              data-category={mainCategory}
+            >
+              <span>{mainCategory}</span>
+              <span class={`transform transition-transform duration-200 ${mainCategory === DEFAULT_MAIN_CATEGORY ? 'rotate-180' : ''}`}>▼</span>
+            </button>
+            
+            <div class={`sites-list pl-4 space-y-1 ${mainCategory === DEFAULT_MAIN_CATEGORY ? '' : 'hidden'}`}>
+              {
+                Object.entries(subCategories).map(([subCategory, sites]) => (
+                  <div class="sub-category-item">
+                    <button
+                      class={`w-full flex items-center justify-between p-2 hover:bg-gray-100 rounded text-sm ${
+                        mainCategory === DEFAULT_MAIN_CATEGORY && subCategory === DEFAULT_SUB_CATEGORY ? 'bg-blue-50 text-blue-600' : ''
+                      }`}
+                      data-main-category={mainCategory}
+                      data-sub-category={subCategory}
+                    >
+                      <span>{subCategory}</span>
+                    </button>
+                    
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </nav>
+</aside>
+
+<script>
+  // 处理主分类的展开/折叠
+  const categoryButtons = document.querySelectorAll('.category-item > button');
+  categoryButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const categoryItem = button.closest('.category-item');
+      const sitesList = categoryItem?.querySelector('.sites-list');
+      const arrow = button.querySelector('span:last-child');
+      
+      if (sitesList && arrow) {
+        sitesList.classList.toggle('hidden');
+        arrow.classList.toggle('rotate-180');
+      }
+    });
+  });
+
+  // 处理子分类的展开/折叠
+  const subCategoryButtons = document.querySelectorAll('.sub-category-item > button');
+  subCategoryButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      // 移除所有子分类的活动状态
+      subCategoryButtons.forEach(btn => {
+        btn.classList.remove('bg-blue-50', 'text-blue-600');
+      });
+      
+      // 添加当前子分类的活动状态
+      button.classList.add('bg-blue-50', 'text-blue-600');
+
+      const subCategoryItem = button.closest('.sub-category-item');
+      const sitesSublist = subCategoryItem?.querySelector('.sites-sublist');
+      
+      if (sitesSublist) {
+        // 隐藏所有子列表
+        document.querySelectorAll('.sites-sublist').forEach(list => {
+          list.classList.add('hidden');
+        });
+        // 显示当前子列表
+        sitesSublist.classList.remove('hidden');
+      }
+
+      // 触发自定义事件
+      const mainCategory = button.getAttribute('data-main-category');
+      const subCategory = button.getAttribute('data-sub-category');
+      
+      const event = new CustomEvent('siteTypeChange', {
+        detail: {
+          mainCategory,
+          subCategory
+        }
+      });
+      window.dispatchEvent(event);
+    });
+  });
+
+  // 处理站点点击事件
+  const siteLinks = document.querySelectorAll('.site-link');
+  siteLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      // 移除所有活动状态
+      siteLinks.forEach(l => l.classList.remove('bg-blue-50', 'text-blue-600'));
+      
+      // 添加当前活动状态
+      link.classList.add('bg-blue-50', 'text-blue-600');
+      
+      // 触发自定义事件
+      const mainCategory = link.getAttribute('data-main-category');
+      const subCategory = link.getAttribute('data-sub-category');
+      const siteName = link.getAttribute('data-site-name');
+      
+      const event = new CustomEvent('siteTypeChange', {
+        detail: {
+          mainCategory,
+          subCategory,
+          siteName
+        }
+      });
+      window.dispatchEvent(event);
+    });
+  });
+</script>

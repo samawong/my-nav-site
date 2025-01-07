@@ -1,0 +1,97 @@
+---
+import { useState } from 'react';
+
+// 搜索引擎选项
+const engines = [
+  { id: 'comprehensive', name: '综合', icon: '🔍' },
+  { id: 'github', name: 'GitHub', icon: '📦' },
+  { id: 'npm', name: 'NPM', icon: '📚' },
+  // 可以添加更多搜索引擎
+];
+
+// 搜索 URLs 配置
+const searchUrls = {
+  comprehensive: 'https://www.google.com/search?q=',
+  github: 'https://github.com/search?q=',
+  npm: 'https://www.npmjs.com/search?q='
+};
+---
+
+<div class="bg-white rounded-lg p-4 shadow-sm">
+  <div class="flex gap-4">
+    <!-- 搜索引擎选择下拉菜单 -->
+    <div class="relative group">
+      <button
+        class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100"
+      >
+        <span class="search-engine-icon">🔍</span>
+        <span>综合</span>
+        <span class="opacity-50">▼</span>
+      </button>
+      
+      <!-- 下拉菜单 -->
+      <div class="hidden group-hover:block absolute top-full left-0 mt-1 w-48 bg-white rounded-lg shadow-lg border p-2">
+        {engines.map(engine => (
+          <button
+            class="w-full flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100"
+            data-engine={engine.id}
+          >
+            <span>{engine.icon}</span>
+            <span>{engine.name}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <!-- 搜索输入框 -->
+    <div class="flex-1 relative">
+      <input
+        type="text"
+        placeholder="输入关键词搜索..."
+        class="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      
+      <!-- 搜索建议下拉框 (可以通过 JS 动态显示) -->
+      <div class="hidden absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg border p-2">
+        <div class="p-2 hover:bg-gray-100 rounded cursor-pointer">建议结果 1</div>
+        <div class="p-2 hover:bg-gray-100 rounded cursor-pointer">建议结果 2</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// 客户端交互逻辑
+document.addEventListener('DOMContentLoaded', () => {
+  const searchInput = document.querySelector('input[type="text"]');
+  const engineButtons = document.querySelectorAll('[data-engine]');
+  const searchEngineIcon = document.querySelector('.search-engine-icon');
+  let currentEngine = 'comprehensive';
+
+  // 更新搜索引擎
+  engineButtons.forEach(button => {
+    button.addEventListener('click', (e) => {
+      const engine = button.getAttribute('data-engine');
+      if (engine) {
+        currentEngine = engine;
+        const engineData = engines.find(e => e.id === engine);
+        if (engineData) {
+          searchEngineIcon.textContent = engineData.icon;
+          button.nextElementSibling.textContent = engineData.name;
+        }
+      }
+    });
+  });
+
+  // 处理搜索
+  searchInput?.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      const searchTerm = searchInput.value.trim();
+      if (searchTerm) {
+        const searchUrl = searchUrls[currentEngine] + encodeURIComponent(searchTerm);
+        window.open(searchUrl, '_blank');
+      }
+    }
+  });
+});
+</script>

@@ -1,0 +1,29 @@
+---
+interface Props {
+  sites: Array<{
+    name: string;
+    desc: string;
+    icon: string;
+    url: string;
+  }>;
+}
+
+const { sites } = Astro.props;
+---
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  {sites.map(site => (
+    <a 
+      href={site.url}
+      class="block p-4 bg-white rounded-lg hover:shadow-lg transition-shadow"
+    >
+      <div class="flex items-start gap-3">
+        <img src={site.icon} alt={site.name} class="w-10 h-10 rounded" />
+        <div>
+          <h3 class="font-medium mb-1">{site.name}</h3>
+          <p class="text-sm text-gray-600">{site.desc}</p>
+        </div>
+      </div>
+    </a>
+  ))}
+</div>
