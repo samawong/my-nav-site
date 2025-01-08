@@ -1,107 +1,204 @@
 ---
-// 定义节假日和节气数据
-const FESTIVALS = [
-  { name: "元旦", month: 1, day: 1 },
-  { name: "春节", month: 1, day: 29 }, // 2025年春节
-  { name: "清明节", month: 4, day: 4 },
-  { name: "劳动节", month: 5, day: 1 },
-  { name: "端午节", month: 5, day: 31 }, // 2025年端午
-  { name: "中秋节", month: 9, day: 6 },  // 2025年中秋
-  { name: "国庆节", month: 10, day: 1 }
-];
+import { SOLAR_TERMS_DATE_2025, TRADITIONAL_FESTIVALS, LEGAL_FESTIVALS } from '../data/calendar';
 
-const SOLAR_TERMS = [
-  { name: "小寒", month: 1, day: 5 },
-  { name: "大寒", month: 1, day: 20 },
-  { name: "立春", month: 2, day: 3 },
-  { name: "雨水", month: 2, day: 18 },
-  { name: "惊蛰", month: 3, day: 5 },
-  { name: "春分", month: 3, day: 20 },
-  { name: "清明", month: 4, day: 4 },
-  { name: "谷雨", month: 4, day: 20 },
-  { name: "立夏", month: 5, day: 5 },
-  { name: "小满", month: 5, day: 21 },
-  { name: "芒种", month: 6, day: 5 },
-  { name: "夏至", month: 6, day: 21 },
-  { name: "小暑", month: 7, day: 7 },
-  { name: "大暑", month: 7, day: 22 },
-  { name: "立秋", month: 8, day: 7 },
-  { name: "处暑", month: 8, day: 23 },
-  { name: "白露", month: 9, day: 7 },
-  { name: "秋分", month: 9, day: 23 },
-  { name: "寒露", month: 10, day: 8 },
-  { name: "霜降", month: 10, day: 23 },
-  { name: "立冬", month: 11, day: 7 },
-  { name: "小雪", month: 11, day: 22 },
-  { name: "大雪", month: 12, day: 7 },
-  { name: "冬至", month: 12, day: 21 }
-];
+interface Holiday {
+  name: string;
+  date: Date;
+  type: 'solar-term' | 'traditional' | 'legal';
+  daysLeft: number;
+}
 
-function getUpcomingHolidays() {
-  const now = new Date();
-  // 设置时间为当天的开始（00:00:00）
-  now.setHours(0, 0, 0, 0);
-  
-  const currentYear = now.getFullYear();
-  const allDates = [...FESTIVALS, ...SOLAR_TERMS].map(holiday => {
-    // 创建今年的日期，并设置为当天开始时间
-    const thisYear = new Date(currentYear, holiday.month - 1, holiday.day);
-    thisYear.setHours(0, 0, 0, 0);
-    
-    // 如果日期已过，使用明年的日期
-    const date = thisYear < now ? new Date(currentYear + 1, holiday.month - 1, holiday.day) : thisYear;
-    date.setHours(0, 0, 0, 0);
-    
-    // 计算天数差异（使用floor而不是ceil，因为我们已经统一了时间）
-    const timeDiff = date.getTime() - now.getTime();
-    const daysLeft = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-    
-    // 判断是节日还是节气
-    const type = FESTIVALS.includes(holiday) ? 'festival' : 'solar-term';
-    
-    return {
-      name: holiday.name,
-      date: date.toISOString().split('T')[0],
-      daysLeft,
-      type
-    };
+// 2025年农历节日对应的公历日期（已校对）
+const LUNAR_DATES_2025: Record<string, { date: string; description?: string }> = {
+  '腊月廿三': { 
+    date: '2025-01-21',
+    description: '小年，北方地区祭灶神'
+  },
+  '腊月廿九': { 
+    date: '2025-01-28',
+    description: '除夕，2025年农历腊月共29天'
+  },
+  '正月初一': { 
+    date: '2025-01-29',
+    description: '春节，农历乙巳年大年初一'
+  },
+  '正月十五': { 
+    date: '2025-02-12',
+    description: '元宵节，上元节'
+  },
+  '二月初二': { 
+    date: '2025-03-01',
+    description: '龙抬头，农历二月初二'
+  },
+  '五月初五': { 
+    date: '2025-05-31',
+    description: '端午节，屈原纪念日'
+  },
+  '七月初七': { 
+    date: '2025-08-01',
+    description: '七夕节，牛郎织女相会'
+  },
+  '七月十五': { 
+    date: '2025-08-09',
+    description: '中元节，盂兰盆节'
+  },
+  '八月十五': { 
+    date: '2025-09-06',
+    description: '中秋节，月圆之夜'
+  },
+  '九月初九': { 
+    date: '2025-09-29',
+    description: '重阳节，登高望远'
+  },
+  '腊月初八': { 
+    date: '2025-12-28',
+    description: '腊八节，腊八粥'
+  }
+};
+// Function to get upcoming holidays
+function getUpcomingHolidays(): Holiday[] {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const holidays: Holiday[] = [];
+
+  // Add solar terms
+  Object.entries(SOLAR_TERMS_DATE_2025).forEach(([term, dateStr]) => {
+    const date = new Date(dateStr);
+    const daysLeft = Math.ceil((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    if (daysLeft >= 0) {
+      holidays.push({
+        name: term,
+        date,
+        type: 'solar-term',
+        daysLeft
+      });
+    }
   });
 
-  // 按剩余天数排序并返回前4个
-  return allDates
-    .sort((a, b) => a.daysLeft - b.daysLeft)
-    .slice(0, 1);
+  // Add traditional festivals
+  Object.entries(LUNAR_DATES_2025).forEach(([lunarDate, info]) => {
+    const date = new Date(info.date);
+    const daysLeft = Math.ceil((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    if (daysLeft >= 0) {
+      holidays.push({
+        name: TRADITIONAL_FESTIVALS[lunarDate],
+        date,
+        type: 'traditional',
+        daysLeft
+      });
+    }
+  });
+
+  // Add legal holidays
+  Object.entries(LEGAL_FESTIVALS).forEach(([dateStr, name]) => {
+    const [month, day] = dateStr.split('-').map(Number);
+    let date = new Date(2025, month - 1, day);
+    if (date < today) {
+      date = new Date(2026, month - 1, day);
+    }
+    const daysLeft = Math.ceil((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    if (daysLeft >= 0) {
+      holidays.push({
+        name,
+        date,
+        type: 'legal',
+        daysLeft
+      });
+    }
+  });
+
+  return holidays.sort((a, b) => a.daysLeft - b.daysLeft);
+}
+
+function formatDateRange(date: Date): string {
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  return `${month}.${day}`;
+}
+
+function getHolidayTypeColor(type: Holiday['type']): string {
+  switch (type) {
+    case 'traditional':
+      return 'text-red-500';
+    case 'solar-term':
+      return 'text-blue-500';
+    case 'legal':
+      return 'text-green-500';
+    default:
+      return 'text-gray-500';
+  }
+}
+
+function getHolidayTypeText(type: Holiday['type']): string {
+  switch (type) {
+    case 'traditional':
+      return '传统节日';
+    case 'solar-term':
+      return '节气';
+    case 'legal':
+      return '法定节假日';
+    default:
+      return '';
+  }
 }
 
 const holidays = getUpcomingHolidays();
+const springFestival = holidays.find(h => h.name === '春节');
+const otherHolidays = holidays.filter(h => h.name !== '春节').slice(0, 3);
 ---
 
-<div class="space-y-4">
-  {holidays.map((holiday, index) => (
-    <div class={`bg-white/10 rounded-lg p-4 ${index === 0 ? 'bg-opacity-20' : 'bg-opacity-10'}`}>
-      <div class="flex justify-between items-baseline">
-        <span class="text-4xl font-bold">{holiday.daysLeft}</span>
-        <span class="text-sm opacity-75">天</span>
+<div class="grid grid-cols-2 gap-4">
+  <!-- 左栏：春节倒计时 -->
+  <div class="bg-gradient-to-br from-red-50 to-pink-50 rounded-lg p-4 hover:shadow-lg transition-shadow">
+    {springFestival && (
+      <div class="text-center">
+        <div class="text-lg font-medium text-red-600 mb-2">距离春节</div>
+        <div class="text-4xl font-bold text-red-600 mb-2">
+          {springFestival.daysLeft}
+          <span class="text-base ml-1">天</span>
+        </div>
+        <div class="text-sm text-gray-600">
+          {springFestival.date.getFullYear()}年{springFestival.date.getMonth() + 1}月{springFestival.date.getDate()}日
+        </div>
+        <div class="mt-2 text-xs text-gray-500">
+          农历乙巳年正月初一
+        </div>
       </div>
-      <div class="mt-2 flex items-center gap-2">
-        <span class={`w-2 h-2 rounded-full ${
-          holiday.type === 'festival' ? 'bg-green-400' : 'bg-blue-400'
-        }`}></span>
-        <span class="text-sm">
-          {holiday.name} ({holiday.date})
-        </span>
-      </div>
+    )}
+  </div>
+
+  <!-- 右栏：其他节日列表 -->
+  <div class="bg-white rounded-lg p-4">
+    <div class="space-y-3">
+      {otherHolidays.map(holiday => (
+        <div class="flex items-center text-sm">
+          <div class={`w-2 h-2 rounded-full ${getHolidayTypeColor(holiday.type)} mr-2`} />
+          <div class="flex-1">
+            <div class="flex items-center justify-between">
+              <span class={getHolidayTypeColor(holiday.type)}>
+                {holiday.name}
+              </span>
+              <span class="text-gray-500">
+                {holiday.daysLeft}天
+               
+              </span>
+            </div>
+            <div class="text-gray-400 text-xs mt-0.5">
+              {formatDateRange(holiday.date)}
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
-  ))}
+  </div>
 </div>
 
 <style>
-  .bg-white\/10 {
+  .bg-gradient-to-br {
     transition: all 0.3s ease;
   }
   
-  .bg-white\/10:hover {
+  .bg-gradient-to-br:hover {
     transform: translateY(-2px);
-    background-opacity: 0.15;
   }
 </style>

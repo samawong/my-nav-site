@@ -1,0 +1,21 @@
+{
+  "name": "发现导航",
+  "short_name": "发现导航",
+  "description": "优质网站与实用工具导航平台",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#4A90E2",
+  "background_color": "#FFFFFF",
+  "display": "standalone",
+  "start_url": "/"
+} 

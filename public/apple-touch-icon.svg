@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="180" height="180" fill="#4A90E2"/>
+  <circle cx="90" cy="90" r="70" fill="white" opacity="0.1"/>
+  <path d="M90 40L97 125H90L83 125L90 40Z" fill="white"/>
+  <path d="M90 90L110 83L123 90L110 97L90 90Z" fill="white" opacity="0.8"/>
+  <path d="M90 90L70 83L57 90L70 97L90 90Z" fill="white" opacity="0.8"/>
+  <path d="M90 90L83 70L90 57L97 70L90 90Z" fill="white" opacity="0.8"/>
+  <path d="M90 90L83 110L90 123L97 110L90 90Z" fill="white" opacity="0.8"/>
+  <circle cx="90" cy="90" r="68" stroke="white" stroke-width="2"/>
+</svg> 

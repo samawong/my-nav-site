@@ -1,97 +1,145 @@
 ---
-import { useState } from 'react';
 
-// 搜索引擎选项
-const engines = [
-  { id: 'comprehensive', name: '综合', icon: '🔍' },
-  { id: 'github', name: 'GitHub', icon: '📦' },
-  { id: 'npm', name: 'NPM', icon: '📚' },
-  // 可以添加更多搜索引擎
-];
-
-// 搜索 URLs 配置
-const searchUrls = {
-  comprehensive: 'https://www.google.com/search?q=',
-  github: 'https://github.com/search?q=',
-  npm: 'https://www.npmjs.com/search?q='
-};
 ---
 
-<div class="bg-white rounded-lg p-4 shadow-sm">
-  <div class="flex gap-4">
-    <!-- 搜索引擎选择下拉菜单 -->
-    <div class="relative group">
-      <button
-        class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100"
-      >
-        <span class="search-engine-icon">🔍</span>
-        <span>综合</span>
-        <span class="opacity-50">▼</span>
-      </button>
-      
-      <!-- 下拉菜单 -->
-      <div class="hidden group-hover:block absolute top-full left-0 mt-1 w-48 bg-white rounded-lg shadow-lg border p-2">
-        {engines.map(engine => (
-          <button
-            class="w-full flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100"
-            data-engine={engine.id}
-          >
-            <span>{engine.icon}</span>
-            <span>{engine.name}</span>
-          </button>
-        ))}
-      </div>
+<div class="relative max-w-2xl mx-auto">
+  <div class="relative">
+    <input
+      type="text"
+      id="search-input"
+      class="w-full px-4 py-3 pl-12 bg-white/10 backdrop-blur-md text-white placeholder-white/70 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20"
+      placeholder="搜索网站标题或地址..."
+      autocomplete="off"
+    />
+    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+      <svg class="w-5 h-5 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
     </div>
+  </div>
+</div>
 
-    <!-- 搜索输入框 -->
-    <div class="flex-1 relative">
-      <input
-        type="text"
-        placeholder="输入关键词搜索..."
-        class="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-      
-      <!-- 搜索建议下拉框 (可以通过 JS 动态显示) -->
-      <div class="hidden absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg border p-2">
-        <div class="p-2 hover:bg-gray-100 rounded cursor-pointer">建议结果 1</div>
-        <div class="p-2 hover:bg-gray-100 rounded cursor-pointer">建议结果 2</div>
-      </div>
+<!-- 搜索结果 -->
+<div id="search-results" class="container mx-auto px-6 mt-8 hidden">
+  <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+    <h3 class="text-lg font-semibold mb-4 flex items-center">
+      <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+      搜索结果
+    </h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <!-- 结果列表将通过 JavaScript 动态插入 -->
     </div>
   </div>
 </div>
 
 <script>
-// 客户端交互逻辑
-document.addEventListener('DOMContentLoaded', () => {
-  const searchInput = document.querySelector('input[type="text"]');
-  const engineButtons = document.querySelectorAll('[data-engine]');
-  const searchEngineIcon = document.querySelector('.search-engine-icon');
-  let currentEngine = 'comprehensive';
+  import getSiteData from '../data/sites.js';
+  const activeSites = getSiteData();
+  // 获取所有网站数据并展平为一维数组
+  const allSites = Object.values(activeSites).flatMap(category => 
+    Object.values(category).flatMap(subcategory => subcategory)
+  );
 
-  // 更新搜索引擎
-  engineButtons.forEach(button => {
-    button.addEventListener('click', (e) => {
-      const engine = button.getAttribute('data-engine');
-      if (engine) {
-        currentEngine = engine;
-        const engineData = engines.find(e => e.id === engine);
-        if (engineData) {
-          searchEngineIcon.textContent = engineData.icon;
-          button.nextElementSibling.textContent = engineData.name;
-        }
-      }
-    });
+  // 获取DOM元素
+  const searchInput = document.getElementById('search-input');
+  const searchResults = document.getElementById('search-results');
+
+  // 搜索函数
+  function searchSites(query: string) {
+    if (!query.trim()) {
+      searchResults?.classList.add('hidden');
+      return;
+    }
+
+    const normalizedQuery = query.toLowerCase();
+    const results = allSites.filter(site => 
+      site.name.toLowerCase().includes(normalizedQuery) ||
+      (site.url && site.url.toLowerCase().includes(normalizedQuery))
+    );
+
+    displayResults(results);
+  }
+
+  // 显示搜索结果
+  function displayResults(results: any[]) {
+    if (!searchResults) return;
+
+    const resultsContainer = searchResults.querySelector('.grid');
+    if (!resultsContainer) return;
+
+    if (results.length === 0) {
+      resultsContainer.innerHTML = `
+        <div class="col-span-full p-4 text-gray-500 text-center">
+          未找到相关网站
+        </div>
+      `;
+    } else {
+      resultsContainer.innerHTML = results.map(site => `
+        <a href="${site.url}" target="_blank" rel="noopener noreferrer"
+           class="flex flex-col items-center p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-all duration-200">
+          <img src="${site.icon}" alt="${site.name}" class="w-12 h-12 rounded-lg mb-2" 
+               onerror="this.src='https://www.google.com/s2/favicons?domain=${site.url}'"/>
+          <div class="text-center">
+            <div class="text-sm font-medium text-gray-900 mb-1">
+              ${site.name}
+            </div>
+            <div class="text-xs text-gray-500 truncate max-w-full">
+              ${site.desc || ''}
+            </div>
+          </div>
+        </a>
+      `).join('');
+    }
+
+    searchResults.classList.remove('hidden');
+  }
+
+  // 事件监听
+  searchInput?.addEventListener('input', (e) => {
+    const target = e.target as HTMLInputElement;
+    searchSites(target.value);
   });
 
-  // 处理搜索
-  searchInput?.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-      const searchTerm = searchInput.value.trim();
-      if (searchTerm) {
-        const searchUrl = searchUrls[currentEngine] + encodeURIComponent(searchTerm);
-        window.open(searchUrl, '_blank');
+  // 按下 Esc 键关闭搜索结果
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      searchResults?.classList.add('hidden');
+      if (searchInput instanceof HTMLInputElement) {
+        searchInput.value = '';
       }
     }
   });
-});
+
+  // 处理搜索结果项的点击事件
+  searchResults?.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    const link = target.closest('a');
+    if (link) {
+      e.preventDefault();
+      window.open(link.href, '_blank', 'noopener,noreferrer');
+    }
+  });
 </script>
+
+<style>
+  /* 自定义滚动条样式 */
+  .overflow-y-auto {
+    scrollbar-width: thin;
+    scrollbar-color: #e2e8f0 #ffffff;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-track {
+    background: #ffffff;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-thumb {
+    background-color: #e2e8f0;
+    border-radius: 3px;
+  }
+</style>

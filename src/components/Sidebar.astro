@@ -1,48 +1,76 @@
 ---
+import getSiteData from '../data/sites.ts';
+
 interface Props {
   activeSites: Record<string, any>;
 }
 
-const { activeSites } = Astro.props;
+const activeSites = getSiteData();
 const DEFAULT_MAIN_CATEGORY = "优质网站";
 const DEFAULT_SUB_CATEGORY = "常用网站";
 ---
 
-<aside class="w-64 bg-white border-r flex flex-col h-full">
-  <div class="p-4 border-b">
-    <div class="flex items-center gap-2">
-      <img src="/logo.svg" alt="logo" class="w-8 h-8" />
-      <h2 class="text-xl font-bold">发现导航</h2>
+<aside class="w-64 bg-gradient-to-b from-white to-gray-50 border-r border-gray-200 flex flex-col h-full animate__animated animate__fadeInLeft shadow-lg">
+  <div class="p-4 border-b border-gray-200 bg-white/80 backdrop-blur-sm">
+    <div class="flex items-center gap-3 logo-container">
+      <div class="logo-wrapper p-1.5 rounded-lg bg-gradient-to-br from-blue-500/20 to-indigo-500/20">
+        <img src="/logo.svg" alt="logo" class="w-8 h-8 logo-spin" />
+      </div>
+      <h2 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
+        发现导航
+      </h2>
     </div>
   </div>
 
-  <nav class="flex-1 overflow-y-auto">
+  <nav class="flex-1 overflow-y-auto custom-scrollbar">
     <div class="space-y-2 p-4">
       {
-        Object.entries(activeSites).map(([mainCategory, subCategories]) => (
-          <div class="category-item">
+        Object.entries(activeSites).map(([mainCategory, subCategories], index) => (
+          <div 
+            class="category-item animate__animated animate__fadeInUp bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300" 
+            style={`animation-delay: ${index * 0.1}s`}
+          >
             <button
-              class="w-full flex items-center justify-between p-2 hover:bg-gray-100 rounded font-medium"
+              class="w-full flex items-center justify-between p-3 rounded-lg font-medium category-button group transition-all duration-300"
               data-category={mainCategory}
             >
-              <span>{mainCategory}</span>
-              <span class={`transform transition-transform duration-200 ${mainCategory === DEFAULT_MAIN_CATEGORY ? 'rotate-180' : ''}`}>▼</span>
+              <span class="category-text flex items-center gap-2">
+                <svg class="w-4 h-4 category-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d={mainCategory === "实用工具" ? 
+                      "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" :
+                      "M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
+                    } 
+                  />
+                </svg>
+                {mainCategory}
+              </span>
+              <span class={`transform transition-transform duration-300 arrow-icon ${mainCategory === DEFAULT_MAIN_CATEGORY ? 'rotate-180' : ''}`}>
+                <svg class="w-4 h-4 text-gray-400 group-hover:text-blue-500 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </span>
             </button>
             
-            <div class={`sites-list pl-4 space-y-1 ${mainCategory === DEFAULT_MAIN_CATEGORY ? '' : 'hidden'}`}>
+            <div class={`sites-list pl-4 pr-2 space-y-1 transition-all duration-300 ease-in-out ${mainCategory === DEFAULT_MAIN_CATEGORY ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
               {
-                Object.entries(subCategories).map(([subCategory, sites]) => (
-                  <div class="sub-category-item">
+                Object.entries(subCategories).map(([subCategory, sites], subIndex) => (
+                  <div 
+                    class="sub-category-item" 
+                    style={`animation-delay: ${(index + subIndex) * 0.1}s`}
+                  >
                     <button
-                      class={`w-full flex items-center justify-between p-2 hover:bg-gray-100 rounded text-sm ${
-                        mainCategory === DEFAULT_MAIN_CATEGORY && subCategory === DEFAULT_SUB_CATEGORY ? 'bg-blue-50 text-blue-600' : ''
+                      class={`w-full flex items-center justify-between p-2.5 rounded-md text-sm transition-all duration-300 hover:bg-blue-50/50 group ${
+                        mainCategory === DEFAULT_MAIN_CATEGORY && subCategory === DEFAULT_SUB_CATEGORY ? 'bg-blue-50 text-blue-600 shadow-sm' : 'text-gray-600'
                       }`}
                       data-main-category={mainCategory}
                       data-sub-category={subCategory}
                     >
-                      <span>{subCategory}</span>
+                      <span class="flex items-center">
+                        <span class="w-1.5 h-1.5 rounded-full bg-gray-300 group-hover:bg-blue-500 mr-2 transition-all duration-300 group-hover:scale-110"></span>
+                        {subCategory}
+                      </span>
                     </button>
-                    
                   </div>
                 ))
               }
@@ -54,6 +82,125 @@ const DEFAULT_SUB_CATEGORY = "常用网站";
   </nav>
 </aside>
 
+<style>
+  /* Logo 动画 */
+  .logo-wrapper {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .logo-wrapper::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      45deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.4) 50%,
+      transparent 100%
+    );
+    transform: rotate(45deg);
+    animation: shine 3s infinite;
+  }
+
+  .logo-spin {
+    transition: transform 0.6s cubic-bezier(0.45, 0, 0.55, 1);
+    will-change: transform;
+  }
+  
+  .logo-container:hover .logo-spin {
+    transform: rotate(360deg) scale(1.1);
+  }
+
+  /* 自定义滚动条 */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(99, 102, 241, 0.3) transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(99, 102, 241, 0.3);
+    border-radius: 3px;
+    transition: background-color 0.3s;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(99, 102, 241, 0.5);
+  }
+
+  /* 分类文字渐变效果 */
+  .category-text {
+    background-size: 200% 100%;
+    background-position: 100%;
+    transition: all 0.3s ease;
+  }
+
+  .category-button:hover .category-text {
+    background-position: 0%;
+    color: #4F46E5;
+  }
+
+  .category-icon {
+    color: #6366F1;
+    transition: transform 0.3s ease;
+  }
+
+  .category-button:hover .category-icon {
+    transform: scale(1.1) rotate(-10deg);
+  }
+
+  /* 箭头图标动画 */
+  .arrow-icon {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .category-button:hover .arrow-icon {
+    transform: translateX(2px) rotate(-180deg);
+  }
+
+  /* 子分类展开/折叠动画 */
+  .sites-list {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* 闪光动画 */
+  @keyframes shine {
+    0% {
+      transform: translateX(-100%) rotate(45deg);
+    }
+    100% {
+      transform: translateX(100%) rotate(45deg);
+    }
+  }
+
+  /* 波纹效果 */
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    transform: scale(0);
+    animation: ripple 0.6s linear;
+    background-color: rgba(99, 102, 241, 0.2);
+  }
+
+  @keyframes ripple {
+    to {
+      transform: scale(4);
+      opacity: 0;
+    }
+  }
+</style>
+
 <script>
   // 处理主分类的展开/折叠
   const categoryButtons = document.querySelectorAll('.category-item > button');
@@ -61,38 +208,51 @@ const DEFAULT_SUB_CATEGORY = "常用网站";
     button.addEventListener('click', () => {
       const categoryItem = button.closest('.category-item');
       const sitesList = categoryItem?.querySelector('.sites-list');
-      const arrow = button.querySelector('span:last-child');
+      const arrow = button.querySelector('.arrow-icon');
       
       if (sitesList && arrow) {
-        sitesList.classList.toggle('hidden');
-        arrow.classList.toggle('rotate-180');
+        if (sitesList.classList.contains('max-h-0')) {
+          // 关闭其他所有展开的列表
+          document.querySelectorAll('.sites-list').forEach(list => {
+            if (list !== sitesList) {
+              list.classList.remove('max-h-96', 'opacity-100');
+              list.classList.add('max-h-0', 'opacity-0');
+              const otherArrow = list.closest('.category-item')?.querySelector('.arrow-icon');
+              otherArrow?.classList.remove('rotate-180');
+            }
+          });
+          
+          sitesList.classList.remove('max-h-0', 'opacity-0');
+          sitesList.classList.add('max-h-96', 'opacity-100');
+          arrow.classList.add('rotate-180');
+        } else {
+          sitesList.classList.remove('max-h-96', 'opacity-100');
+          sitesList.classList.add('max-h-0', 'opacity-0');
+          arrow.classList.remove('rotate-180');
+        }
       }
     });
   });
 
-  // 处理子分类的展开/折叠
+  // 处理子分类的点击
   const subCategoryButtons = document.querySelectorAll('.sub-category-item > button');
   subCategoryButtons.forEach(button => {
-    button.addEventListener('click', () => {
+    button.addEventListener('click', (e: MouseEvent) => {
+      // 添加点击波纹效果
+      const rect = button.getBoundingClientRect();
+      const ripple = document.createElement('div');
+      ripple.className = 'ripple';
+      ripple.style.left = `${e.clientX - rect.left}px`;
+      ripple.style.top = `${e.clientY - rect.top}px`;
+      button.appendChild(ripple);
+      
       // 移除所有子分类的活动状态
       subCategoryButtons.forEach(btn => {
-        btn.classList.remove('bg-blue-50', 'text-blue-600');
+        btn.classList.remove('bg-blue-50', 'text-blue-600', 'shadow-sm');
       });
       
       // 添加当前子分类的活动状态
-      button.classList.add('bg-blue-50', 'text-blue-600');
-
-      const subCategoryItem = button.closest('.sub-category-item');
-      const sitesSublist = subCategoryItem?.querySelector('.sites-sublist');
-      
-      if (sitesSublist) {
-        // 隐藏所有子列表
-        document.querySelectorAll('.sites-sublist').forEach(list => {
-          list.classList.add('hidden');
-        });
-        // 显示当前子列表
-        sitesSublist.classList.remove('hidden');
-      }
+      button.classList.add('bg-blue-50', 'text-blue-600', 'shadow-sm');
 
       // 触发自定义事件
       const mainCategory = button.getAttribute('data-main-category');
@@ -105,32 +265,22 @@ const DEFAULT_SUB_CATEGORY = "常用网站";
         }
       });
       window.dispatchEvent(event);
+
+      // 移除波纹效果
+      setTimeout(() => {
+        ripple.remove();
+      }, 600);
     });
   });
 
-  // 处理站点点击事件
-  const siteLinks = document.querySelectorAll('.site-link');
-  siteLinks.forEach(link => {
-    link.addEventListener('click', () => {
-      // 移除所有活动状态
-      siteLinks.forEach(l => l.classList.remove('bg-blue-50', 'text-blue-600'));
-      
-      // 添加当前活动状态
-      link.classList.add('bg-blue-50', 'text-blue-600');
-      
-      // 触发自定义事件
-      const mainCategory = link.getAttribute('data-main-category');
-      const subCategory = link.getAttribute('data-sub-category');
-      const siteName = link.getAttribute('data-site-name');
-      
-      const event = new CustomEvent('siteTypeChange', {
-        detail: {
-          mainCategory,
-          subCategory,
-          siteName
-        }
-      });
-      window.dispatchEvent(event);
+  // 在页面加载时触发默认分类的事件
+  window.addEventListener('load', () => {
+    const event = new CustomEvent('siteTypeChange', {
+      detail: {
+        mainCategory: "优质网站",
+        subCategory: "常用网站"
+      }
     });
+    window.dispatchEvent(event);
   });
 </script>

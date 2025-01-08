@@ -1,29 +1,211 @@
 ---
 interface Props {
   title: string;
+  description?: string;
+  keywords?: string;
 }
 
-const { title } = Astro.props;
+const { 
+  title, 
+  description = "一个集成了实用工具和优质网站导航的平台，帮助您快速找到所需的在线资源和工具。",
+  keywords = "网站导航,实用工具,在线工具,优质网站,开发工具,学习资源"
+} = Astro.props;
+
+// 获取当前 URL
+const canonicalURL = new URL(
+  Astro.url.pathname,
+  Astro.site || 'https://nav.yourdomain.com'
+);
 ---
 
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="keywords" content={keywords} />
+    <meta name="author" content="Your Name" />
+    <meta name="theme-color" content="#4A90E2" />
+    <meta name="robots" content="index, follow" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content="/og-image.png" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={canonicalURL} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content="/og-image.png" />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="msapplication-TileColor" content="#4A90E2" />
+    
+    <!-- 添加动画库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    
     <title>{title}</title>
   </head>
   <body>
-    <slot />
+    <div class="background-animation"></div>
+    <div class="content-wrapper">
+      <slot />
+    </div>
     <style is:global>
       :root {
         --accent: 124, 58, 237;
         --accent-gradient: linear-gradient(45deg, rgb(var(--accent)), #da62c4 30%, white 60%);
+        --primary: #4A90E2;
+        --primary-light: #6BA7E8;
+        --primary-dark: #2C7BD9;
       }
+
+      /* 背景动画 */
+      .background-animation {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background: linear-gradient(
+          45deg,
+          rgba(74, 144, 226, 0.1) 0%,
+          rgba(74, 144, 226, 0.05) 100%
+        );
+        background-size: 400% 400%;
+        animation: gradient 15s ease infinite;
+      }
+
+      .content-wrapper {
+        position: relative;
+        z-index: 1;
+      }
+
+      /* 全局动画效果 */
+      .hover-float {
+        transition: transform 0.3s ease;
+      }
+
+      .hover-float:hover {
+        transform: translateY(-5px);
+      }
+
+      .hover-scale {
+        transition: transform 0.3s ease;
+      }
+
+      .hover-scale:hover {
+        transform: scale(1.05);
+      }
+
+      .hover-glow {
+        transition: box-shadow 0.3s ease, transform 0.3s ease;
+      }
+
+      .hover-glow:hover {
+        box-shadow: 0 0 20px rgba(74, 144, 226, 0.3);
+        transform: translateY(-2px);
+      }
+
+      /* 渐变动画 */
+      @keyframes gradient {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+
+      /* 闪光效果 */
+      .shine {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .shine::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+          to right,
+          transparent 0%,
+          rgba(255, 255, 255, 0.3) 50%,
+          transparent 100%
+        );
+        transform: rotate(45deg);
+        animation: shine 6s infinite;
+      }
+
+      @keyframes shine {
+        0% {
+          transform: translateX(-100%) rotate(45deg);
+        }
+        100% {
+          transform: translateX(100%) rotate(45deg);
+        }
+      }
+
+      /* 平滑滚动 */
       html {
-        font-family: system-ui, sans-serif;
+        scroll-behavior: smooth;
         background-color: #F6F6F6;
+        font-family: system-ui, sans-serif;
       }
+
+      /* 加载动画 */
+      .fade-in {
+        animation: fadeIn 0.5s ease-in;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* 脉冲动画 */
+      .pulse {
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
       code {
         font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
           Bitstream Vera Sans Mono, Courier New, monospace;

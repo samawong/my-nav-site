@@ -1,0 +1,436 @@
+---
+interface LunarInfo {
+  lunarInfo: number[];
+}
+
+// 农历数据（1900-2100年）
+const LUNAR_INFO = [
+  0x04bd8,0x04ae0,0x0a570,0x054d5,0x0d260,0x0d950,0x16554,0x056a0,0x09ad0,0x055d2,
+  0x04ae0,0x0a5b6,0x0a4d0,0x0d250,0x1d255,0x0b540,0x0d6a0,0x0ada2,0x095b0,0x14977,
+  0x04970,0x0a4b0,0x0b4b5,0x06a50,0x06d40,0x1ab54,0x02b60,0x09570,0x052f2,0x04970,
+  0x06566,0x0d4a0,0x0ea50,0x06e95,0x05ad0,0x02b60,0x186e3,0x092e0,0x1c8d7,0x0c950,
+  0x0d4a0,0x1d8a6,0x0b550,0x056a0,0x1a5b4,0x025d0,0x092d0,0x0d2b2,0x0a950,0x0b557,
+  0x06ca0,0x0b550,0x15355,0x04da0,0x0a5b0,0x14573,0x052b0,0x0a9a8,0x0e950,0x06aa0,
+  0x0aea6,0x0ab50,0x04b60,0x0aae4,0x0a570,0x05260,0x0f263,0x0d950,0x05b57,0x056a0,
+  0x096d0,0x04dd5,0x04ad0,0x0a4d0,0x0d4d4,0x0d250,0x0d558,0x0b540,0x0b6a0,0x195a6,
+  0x095b0,0x049b0,0x0a974,0x0a4b0,0x0b27a,0x06a50,0x06d40,0x0af46,0x0ab60,0x09570,
+  0x04af5,0x04970,0x064b0,0x074a3,0x0ea50,0x06b58,0x055c0,0x0ab60,0x096d5,0x092e0,
+  0x0c960,0x0d954,0x0d4a0,0x0da50,0x07552,0x056a0,0x0abb7,0x025d0,0x092d0,0x0cab5,
+  0x0a950,0x0b4a0,0x0baa4,0x0ad50,0x055d9,0x04ba0,0x0a5b0,0x15176,0x052b0,0x0a930,
+  0x07954,0x06aa0,0x0ad50,0x05b52,0x04b60,0x0a6e6,0x0a4e0,0x0d260,0x0ea65,0x0d530,
+  0x05aa0,0x076a3,0x096d0,0x04bd7,0x04ad0,0x0a4d0,0x1d0b6,0x0d250,0x0d520,0x0dd45,
+  0x0b5a0,0x056d0,0x055b2,0x049b0,0x0a577,0x0a4b0,0x0aa50,0x1b255,0x06d20,0x0ada0
+];
+
+// 二十四节气
+const SOLAR_TERMS = [
+  '小寒', '大寒', '立春', '雨水', '惊蛰', '春分',
+  '清明', '谷雨', '立夏', '小满', '芒种', '夏至',
+  '小暑', '大暑', '立秋', '处暑', '白露', '秋分',
+  '寒露', '霜降', '立冬', '小雪', '大雪', '冬至'
+];
+
+// 节气日期（2025年）
+const SOLAR_TERMS_DATE_2025 = {
+  '小寒': '2025-01-05 10:27:00',
+  '大寒': '2025-01-20 04:05:00',
+  '立春': '2025-02-03 22:36:00',
+  '雨水': '2025-02-18 17:31:00',
+  '惊蛰': '2025-03-05 12:37:00',
+  '春分': '2025-03-20 06:25:00',
+  '清明': '2025-04-04 22:24:00',
+  '谷雨': '2025-04-20 11:35:00',
+  '立夏': '2025-05-05 22:14:00',
+  '小满': '2025-05-21 06:16:00',
+  '芒种': '2025-06-05 12:24:00',
+  '夏至': '2025-06-21 17:03:00',
+  '小暑': '2025-07-07 20:26:00',
+  '大暑': '2025-07-22 23:51:00',
+  '立秋': '2025-08-07 03:39:00',
+  '处暑': '2025-08-23 08:36:00',
+  '白露': '2025-09-07 14:19:00',
+  '秋分': '2025-09-22 20:44:00',
+  '寒露': '2025-10-08 03:55:00',
+  '霜降': '2025-10-23 11:36:00',
+  '立冬': '2025-11-07 20:20:00',
+  '小雪': '2025-11-22 05:45:00',
+  '大雪': '2025-12-07 16:04:00',
+  '冬至': '2025-12-22 03:03:00'
+};
+
+// 传统节日
+const TRADITIONAL_FESTIVALS = {
+  '正月初一': '春节',
+  '正月十五': '元宵节',
+  '二月初二': '龙抬头',
+  '五月初五': '端午节',
+  '七月初七': '七夕节',
+  '七月十五': '中元节',
+  '八月十五': '中秋节',
+  '九月初九': '重阳节',
+  '腊月初八': '腊八节',
+  '腊月廿三': '小年',
+  '腊月三十': '除夕'
+};
+
+// 法定节假日
+const LEGAL_FESTIVALS = {
+  '01-01': '元旦',
+  '05-01': '劳动节',
+  '10-01': '国庆节'
+};
+
+const ZODIAC = ["鼠", "牛", "虎", "兔", "龙", "蛇", "马", "羊", "猴", "鸡", "狗", "猪"];
+const HEAVENLY_STEMS = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
+const EARTHLY_BRANCHES = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
+const LUNAR_MONTHS = ["正", "二", "三", "四", "五", "六", "七", "八", "九", "十", "冬", "腊"];
+const LUNAR_DAYS = ["初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十",
+                   "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十",
+                   "廿一", "廿二", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十"];
+
+// 二十八星宿
+const CONSTELLATIONS = [
+  { name: "角木蛟", nature: "木", animal: "蛟", element: "东方七宿" },
+  { name: "亢金龙", nature: "金", animal: "龙", element: "东方七宿" },
+  { name: "氐土貉", nature: "土", animal: "貉", element: "东方七宿" },
+  { name: "房日兔", nature: "日", animal: "兔", element: "东方七宿" },
+  { name: "心月狐", nature: "月", animal: "狐", element: "东方七宿" },
+  { name: "尾火虎", nature: "火", animal: "虎", element: "东方七宿" },
+  { name: "箕水豹", nature: "水", animal: "豹", element: "东方七宿" },
+  { name: "斗木獬", nature: "木", animal: "獬", element: "北方七宿" },
+  { name: "牛金牛", nature: "金", animal: "牛", element: "北方七宿" },
+  { name: "女土蝠", nature: "土", animal: "蝠", element: "北方七宿" },
+  { name: "虚日鼠", nature: "日", animal: "鼠", element: "北方七宿" },
+  { name: "危月燕", nature: "月", animal: "燕", element: "北方七宿" },
+  { name: "室火猪", nature: "火", animal: "猪", element: "北方七宿" },
+  { name: "壁水貐", nature: "水", animal: "貐", element: "北方七宿" },
+  { name: "奎木狼", nature: "木", animal: "狼", element: "西方七宿" },
+  { name: "娄金狗", nature: "金", animal: "狗", element: "西方七宿" },
+  { name: "胃土雉", nature: "土", animal: "雉", element: "西方七宿" },
+  { name: "昴日鸡", nature: "日", animal: "鸡", element: "西方七宿" },
+  { name: "毕月乌", nature: "月", animal: "乌", element: "西方七宿" },
+  { name: "觜火猴", nature: "火", animal: "猴", element: "西方七宿" },
+  { name: "参水猿", nature: "水", animal: "猿", element: "西方七宿" },
+  { name: "井木犴", nature: "木", animal: "犴", element: "南方七宿" },
+  { name: "鬼金羊", nature: "金", animal: "羊", element: "南方七宿" },
+  { name: "柳土獐", nature: "土", animal: "獐", element: "南方七宿" },
+  { name: "星日马", nature: "日", animal: "马", element: "南方七宿" },
+  { name: "张月鹿", nature: "月", animal: "鹿", element: "南方七宿" },
+  { name: "翼火蛇", nature: "火", animal: "蛇", element: "南方七宿" },
+  { name: "轸水蚓", nature: "水", animal: "蚓", element: "南方七宿" }
+];
+
+// 每日吉凶
+const DAILY_FORTUNE = {
+  // 财运
+  wealth: [
+    { level: "大吉", description: "财源广进，有意外之财" },
+    { level: "中吉", description: "财运平稳，收支平衡" },
+    { level: "小吉", description: "略有小财，量入为出" },
+    { level: "平平", description: "一般，不宜大额支出" },
+    { level: "小凶", description: "防止破财，谨慎投资" },
+    { level: "大凶", description: "易有破财，避免投资" }
+  ],
+  // 事业
+  career: [
+    { level: "大吉", description: "事业顺遂，有贵人相助" },
+    { level: "中吉", description: "工作顺利，进展良好" },
+    { level: "小吉", description: "略有进展，保持稳定" },
+    { level: "平平", description: "一般，按部就班" },
+    { level: "小凶", description: "略有阻滞，谨慎行事" },
+    { level: "大凶", description: "诸事不宜，避免冒进" }
+  ],
+  // 健康
+  health: [
+    { level: "大吉", description: "身体康泰，精力充沛" },
+    { level: "中吉", description: "身体良好，注意休息" },
+    { level: "小吉", description: "略感疲惫，及时调养" },
+    { level: "平平", description: "一般，保持作息" },
+    { level: "小凶", description: "易感不适，注意保养" },
+    { level: "大凶", description: "易有不适，避免劳累" }
+  ],
+  // 感情
+  love: [
+    { level: "大吉", description: "桃花旺盛，感情和睦" },
+    { level: "中吉", description: "感情稳定，和谐融洽" },
+    { level: "小吉", description: "略有情意，保持关系" },
+    { level: "平平", description: "一般，随缘发展" },
+    { level: "小凶", description: "易生误会，注意沟通" },
+    { level: "大凶", description: "易起争执，避免冲突" }
+  ]
+};
+
+// 农历转换算法
+class LunarCalendar implements LunarInfo {
+  lunarInfo: number[];
+
+  constructor() {
+    this.lunarInfo = LUNAR_INFO;
+  }
+
+  /**
+   * 获取农历年的总天数
+   */
+  private getLunarYearDays(year: number): number {
+    let totalDays = 348;
+    for (let i = 0x8000; i > 0x8; i >>= 1) {
+      totalDays += (this.lunarInfo[year - 1900] & i) ? 1 : 0;
+    }
+    return totalDays + this.getLeapMonthDays(year);
+  }
+
+  /**
+   * 获取农历年闰月的天数
+   */
+  private getLeapMonthDays(year: number): number {
+    if (this.getLeapMonth(year)) {
+      return (this.lunarInfo[year - 1900] & 0x10000) ? 30 : 29;
+    }
+    return 0;
+  }
+
+  /**
+   * 获取农历年闰月月份
+   */
+  private getLeapMonth(year: number): number {
+    return this.lunarInfo[year - 1900] & 0xf;
+  }
+
+  /**
+   * 获取农历月份的天数
+   */
+  private getMonthDays(year: number, month: number): number {
+    return (this.lunarInfo[year - 1900] & (0x10000 >> month)) ? 30 : 29;
+  }
+
+  /**
+   * 公历转农历
+   */
+  public solar2lunar(date: Date): {
+    year: number;
+    month: number;
+    day: number;
+    isLeap: boolean;
+    yearGanZhi: string;
+    zodiac: string;
+    monthName: string;
+    dayName: string;
+  } {
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+
+    // 计算从1900年1月31日到目标日期的总天数
+    let offset = Math.floor((Date.UTC(year, month - 1, day) - Date.UTC(1900, 0, 31)) / 86400000);
+
+    // 计算农历年
+    let lunarYear = 1900;
+    for (; lunarYear < 2100 && offset > 0; lunarYear++) {
+      let yearDays = this.getLunarYearDays(lunarYear);
+      offset -= yearDays;
+    }
+    if (offset < 0) {
+      offset += this.getLunarYearDays(--lunarYear);
+    }
+
+    // 计算农历月
+    let lunarMonth = 1;
+    let isLeap = false;
+    let leapMonth = this.getLeapMonth(lunarYear);
+
+    for (; lunarMonth < 13 && offset > 0; lunarMonth++) {
+      if (leapMonth > 0 && lunarMonth === leapMonth + 1 && !isLeap) {
+        --lunarMonth;
+        isLeap = true;
+        let monthDays = this.getLeapMonthDays(lunarYear);
+        offset -= monthDays;
+      } else {
+        let monthDays = this.getMonthDays(lunarYear, lunarMonth);
+        offset -= monthDays;
+      }
+    }
+
+    if (offset === 0 && leapMonth > 0 && lunarMonth === leapMonth + 1) {
+      isLeap = true;
+    }
+    if (offset < 0) {
+      offset += this.getMonthDays(lunarYear, --lunarMonth);
+    }
+
+    // 计算农历日
+    let lunarDay = offset + 1;
+
+    // 计算天干地支年
+    let yearGanZhi = HEAVENLY_STEMS[(lunarYear - 4) % 10] + EARTHLY_BRANCHES[(lunarYear - 4) % 12];
+    
+    // 计算生肖
+    let zodiac = ZODIAC[(lunarYear - 4) % 12];
+
+    // 获取月份和日期的中文名称
+    let monthName = (isLeap ? "闰" : "") + LUNAR_MONTHS[lunarMonth - 1];
+    let dayName = LUNAR_DAYS[lunarDay - 1];
+
+    return {
+      year: lunarYear,
+      month: lunarMonth,
+      day: lunarDay,
+      isLeap,
+      yearGanZhi,
+      zodiac,
+      monthName,
+      dayName
+    };
+  }
+}
+
+// 获取今日运势（基于日期的确定性算法）
+function getTodayFortune(date: Date): Array<{type: string, level: string, description: string}> {
+  // 使用日期的各个部分来确定运势
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const day = date.getDate();
+  const weekDay = date.getDay();
+  
+  // 使用一个确定性的算法来计算运势指数（0-5）
+  const getFortuneIndex = (type: string) => {
+    const base = (year * 5 + month * 7 + day * 3 + weekDay * 2);
+    const typeOffset = {
+      wealth: 0,
+      career: 1,
+      health: 2,
+      love: 3
+    }[type] || 0;
+    
+    return Math.abs((base + typeOffset) % 6);
+  };
+
+  return Object.entries(DAILY_FORTUNE).map(([type, levels]) => {
+    const index = getFortuneIndex(type);
+    const fortune = levels[index];
+    return {
+      type,
+      level: fortune.level,
+      description: fortune.description
+    };
+  });
+}
+
+// 获取今日星宿（基于实际天文历法）
+function getTodayConstellation(date: Date): typeof CONSTELLATIONS[0] {
+  const days = Math.floor((Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) - Date.UTC(2000, 0, 1)) / 86400000);
+  const index = Math.abs(days) % 28;
+  return CONSTELLATIONS[index];
+}
+
+// 获取最近的节气
+function getRecentSolarTerms(date: Date): { prev: string; next: string; prevDate: Date; nextDate: Date } {
+  const currentYear = date.getFullYear();
+  const entries = Object.entries(SOLAR_TERMS_DATE_2025).map(([term, dateStr]) => ({
+    term,
+    date: new Date(dateStr)
+  }));
+
+  let prev = entries[entries.length - 1];
+  let next = entries[0];
+
+  for (let i = 0; i < entries.length; i++) {
+    if (entries[i].date > date) {
+      prev = entries[i - 1] || entries[entries.length - 1];
+      next = entries[i];
+      break;
+    }
+  }
+
+  return {
+    prev: prev.term,
+    next: next.term,
+    prevDate: prev.date,
+    nextDate: next.date
+  };
+}
+
+const today = new Date();
+const weekDays = ["日", "一", "二", "三", "四", "五", "六"];
+
+// 获取农历日期
+const lunar = new LunarCalendar().solar2lunar(today);
+
+
+
+const getSolarFestival = (month: number, day: number) => {
+  const key = `${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+  return LEGAL_FESTIVALS[key];
+};
+
+
+const solarFestival = getSolarFestival(today.getMonth() + 1, today.getDate());
+
+---
+
+<div class="calendar-card">
+  <div class="date-section">
+    <div class="current-date">
+      <div class="month-year">
+        {today.getFullYear()}年{today.getMonth() + 1}月
+      </div>
+      <div class="day text-4xl font-bold">
+        {today.getDate()}
+      </div>
+      <div class="week">
+        星期{weekDays[today.getDay()]}
+      </div>
+    </div>
+    <div class="lunar-date">
+      <div class="year">
+        {lunar.yearGanZhi}年 [{lunar.zodiac}年]
+      </div>
+      <div class="month-day">
+        农历{lunar.monthName}月{lunar.dayName}
+      </div>
+      
+    </div>
+  </div>
+
+</div>
+
+<style>
+  .calendar-card {
+    @apply bg-white rounded-lg;
+  }
+
+  .date-section {
+    @apply text-center;
+  }
+
+  .current-date {
+    @apply mb-2;
+  }
+
+  .month-year {
+    @apply text-gray-600 mb-1;
+  }
+
+  .week {
+    @apply text-gray-500 text-sm mt-1;
+  }
+
+  .lunar-date {
+    @apply text-sm text-gray-600;
+  }
+
+  .year {
+    @apply mb-1;
+  }
+
+  .solar-terms {
+    @apply mt-2 text-xs;
+  }
+
+  .constellation {
+    @apply mt-2 text-xs;
+  }
+
+  .fortune-section {
+    @apply text-sm;
+  }
+</style> 

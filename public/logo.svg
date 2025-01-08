@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="60" cy="60" r="50" fill="#4A90E2" opacity="0.08"/>
+  <path d="M60 20L65 85H60L55 85L60 20Z" fill="#4A90E2"/>
+  <path d="M60 60L75 55L85 60L75 65L60 60Z" fill="#4A90E2" opacity="0.8"/>
+  <path d="M60 60L45 55L35 60L45 65L60 60Z" fill="#4A90E2" opacity="0.8"/>
+  <path d="M60 60L55 45L60 35L65 45L60 60Z" fill="#4A90E2" opacity="0.8"/>
+  <path d="M60 60L55 75L60 85L65 75L60 60Z" fill="#4A90E2" opacity="0.8"/>
+  <circle cx="60" cy="60" r="48" stroke="#4A90E2" stroke-width="2"/>
+</svg>
