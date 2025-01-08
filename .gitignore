@@ -1,6 +1,8 @@
 # 原始数据文件
-src/data/data.ts
+data/*
 
+# 加密数据文件
+/src/scripts/generateEncryptedData.ts
 # build output
 dist/
 
