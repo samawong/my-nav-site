@@ -1,20 +1,22 @@
 ---
 interface Props {
   title: string;
+  username?: string;
   description?: string;
   keywords?: string;
 }
 
 const { 
   title, 
-  description = "一个集成了实用工具和优质网站导航的平台，帮助您快速找到所需的在线资源和工具。",
+  username = import.meta.env.PUBLIC_USER_NAME,
+  description = import.meta.env.PUBLIC_WEBSITE_NAME,
   keywords = "网站导航,实用工具,在线工具,优质网站,开发工具,学习资源"
 } = Astro.props;
 
 // 获取当前 URL
 const canonicalURL = new URL(
   Astro.url.pathname,
-  Astro.site || 'https://nav.yourdomain.com'
+  Astro.site || 'https://' + import.meta.env.PUBLIC_DOMAIN
 );
 ---
 
@@ -25,7 +27,7 @@ const canonicalURL = new URL(
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <meta name="keywords" content={keywords} />
-    <meta name="author" content="Your Name" />
+    <meta name="author" content={username} />
     <meta name="theme-color" content="#4A90E2" />
     <meta name="robots" content="index, follow" />
     

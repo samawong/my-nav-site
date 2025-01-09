@@ -1,204 +1,213 @@
 ---
-import { SOLAR_TERMS_DATE_2025, TRADITIONAL_FESTIVALS, LEGAL_FESTIVALS } from '../data/calendar';
-
+// 移除服务端的节日数据计算
 interface Holiday {
   name: string;
+  type: string;
   date: Date;
-  type: 'solar-term' | 'traditional' | 'legal';
   daysLeft: number;
 }
-
-// 2025年农历节日对应的公历日期（已校对）
-const LUNAR_DATES_2025: Record<string, { date: string; description?: string }> = {
-  '腊月廿三': { 
-    date: '2025-01-21',
-    description: '小年，北方地区祭灶神'
-  },
-  '腊月廿九': { 
-    date: '2025-01-28',
-    description: '除夕，2025年农历腊月共29天'
-  },
-  '正月初一': { 
-    date: '2025-01-29',
-    description: '春节，农历乙巳年大年初一'
-  },
-  '正月十五': { 
-    date: '2025-02-12',
-    description: '元宵节，上元节'
-  },
-  '二月初二': { 
-    date: '2025-03-01',
-    description: '龙抬头，农历二月初二'
-  },
-  '五月初五': { 
-    date: '2025-05-31',
-    description: '端午节，屈原纪念日'
-  },
-  '七月初七': { 
-    date: '2025-08-01',
-    description: '七夕节，牛郎织女相会'
-  },
-  '七月十五': { 
-    date: '2025-08-09',
-    description: '中元节，盂兰盆节'
-  },
-  '八月十五': { 
-    date: '2025-09-06',
-    description: '中秋节，月圆之夜'
-  },
-  '九月初九': { 
-    date: '2025-09-29',
-    description: '重阳节，登高望远'
-  },
-  '腊月初八': { 
-    date: '2025-12-28',
-    description: '腊八节，腊八粥'
-  }
-};
-// Function to get upcoming holidays
-function getUpcomingHolidays(): Holiday[] {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const holidays: Holiday[] = [];
-
-  // Add solar terms
-  Object.entries(SOLAR_TERMS_DATE_2025).forEach(([term, dateStr]) => {
-    const date = new Date(dateStr);
-    const daysLeft = Math.ceil((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    if (daysLeft >= 0) {
-      holidays.push({
-        name: term,
-        date,
-        type: 'solar-term',
-        daysLeft
-      });
-    }
-  });
-
-  // Add traditional festivals
-  Object.entries(LUNAR_DATES_2025).forEach(([lunarDate, info]) => {
-    const date = new Date(info.date);
-    const daysLeft = Math.ceil((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    if (daysLeft >= 0) {
-      holidays.push({
-        name: TRADITIONAL_FESTIVALS[lunarDate],
-        date,
-        type: 'traditional',
-        daysLeft
-      });
-    }
-  });
-
-  // Add legal holidays
-  Object.entries(LEGAL_FESTIVALS).forEach(([dateStr, name]) => {
-    const [month, day] = dateStr.split('-').map(Number);
-    let date = new Date(2025, month - 1, day);
-    if (date < today) {
-      date = new Date(2026, month - 1, day);
-    }
-    const daysLeft = Math.ceil((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    if (daysLeft >= 0) {
-      holidays.push({
-        name,
-        date,
-        type: 'legal',
-        daysLeft
-      });
-    }
-  });
-
-  return holidays.sort((a, b) => a.daysLeft - b.daysLeft);
-}
-
-function formatDateRange(date: Date): string {
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const day = date.getDate().toString().padStart(2, '0');
-  return `${month}.${day}`;
-}
-
-function getHolidayTypeColor(type: Holiday['type']): string {
-  switch (type) {
-    case 'traditional':
-      return 'text-red-500';
-    case 'solar-term':
-      return 'text-blue-500';
-    case 'legal':
-      return 'text-green-500';
-    default:
-      return 'text-gray-500';
-  }
-}
-
-function getHolidayTypeText(type: Holiday['type']): string {
-  switch (type) {
-    case 'traditional':
-      return '传统节日';
-    case 'solar-term':
-      return '节气';
-    case 'legal':
-      return '法定节假日';
-    default:
-      return '';
-  }
-}
-
-const holidays = getUpcomingHolidays();
-const springFestival = holidays.find(h => h.name === '春节');
-const otherHolidays = holidays.filter(h => h.name !== '春节').slice(0, 3);
 ---
 
 <div class="grid grid-cols-2 gap-4">
   <!-- 左栏：春节倒计时 -->
-  <div class="bg-gradient-to-br from-red-50 to-pink-50 rounded-lg p-4 hover:shadow-lg transition-shadow">
-    {springFestival && (
-      <div class="text-center">
-        <div class="text-lg font-medium text-red-600 mb-2">距离春节</div>
-        <div class="text-4xl font-bold text-red-600 mb-2">
-          {springFestival.daysLeft}
-          <span class="text-base ml-1">天</span>
-        </div>
-        <div class="text-sm text-gray-600">
-          {springFestival.date.getFullYear()}年{springFestival.date.getMonth() + 1}月{springFestival.date.getDate()}日
-        </div>
-        <div class="mt-2 text-xs text-gray-500">
-          农历乙巳年正月初一
-        </div>
-      </div>
-    )}
+  <div id="spring-festival" class="bg-gradient-to-br from-red-50 to-pink-50 rounded-lg p-4 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+    <!-- 春节倒计时将由 JavaScript 动态生成 -->
   </div>
 
   <!-- 右栏：其他节日列表 -->
-  <div class="bg-white rounded-lg p-4">
-    <div class="space-y-3">
-      {otherHolidays.map(holiday => (
-        <div class="flex items-center text-sm">
-          <div class={`w-2 h-2 rounded-full ${getHolidayTypeColor(holiday.type)} mr-2`} />
-          <div class="flex-1">
-            <div class="flex items-center justify-between">
-              <span class={getHolidayTypeColor(holiday.type)}>
-                {holiday.name}
-              </span>
-              <span class="text-gray-500">
-                {holiday.daysLeft}天
-               
-              </span>
-            </div>
-            <div class="text-gray-400 text-xs mt-0.5">
-              {formatDateRange(holiday.date)}
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
+  <div id="other-holidays" class="bg-white rounded-lg p-4">
+    <!-- 其他节日列表将由 JavaScript 动态生成 -->
   </div>
 </div>
 
-<style>
-  .bg-gradient-to-br {
-    transition: all 0.3s ease;
+<script>
+  // 节日数据
+  const FESTIVALS: {
+    FIXED: Record<string, { name: string; type: string }>;
+    TRADITIONAL: Record<string, { name: string; type: string }>;
+    SOLAR_TERMS: Record<string, { name: string; type: string }>;
+  } = {
+    // 法定节假日（固定日期）
+    FIXED: {
+      "01-01": { name: "元旦", type: "法定" },
+      "05-01": { name: "劳动节", type: "法定" },
+      "10-01": { name: "国庆节", type: "法定" }
+    },
+    // 传统节日（2025年对应的公历日期）
+    TRADITIONAL: {
+      "2025-01-29": { name: "春节", type: "传统" },
+      "2025-02-12": { name: "元宵节", type: "传统" },
+      "2025-04-04": { name: "清明节", type: "传统" },
+      "2025-06-23": { name: "端午节", type: "传统" },
+      "2025-08-21": { name: "七夕节", type: "传统" },
+      "2025-09-21": { name: "中秋节", type: "传统" },
+      "2025-10-28": { name: "重阳节", type: "传统" }
+    },
+    // 二十四节气（2025年）
+    SOLAR_TERMS: {
+      "2025-01-05": { name: "小寒", type: "节气" },
+      "2025-01-20": { name: "大寒", type: "节气" },
+      "2025-02-03": { name: "立春", type: "节气" },
+      "2025-02-18": { name: "雨水", type: "节气" },
+      "2025-03-05": { name: "惊蛰", type: "节气" },
+      "2025-03-20": { name: "春分", type: "节气" },
+      "2025-04-04": { name: "清明", type: "节气" },
+      "2025-04-20": { name: "谷雨", type: "节气" },
+      "2025-05-05": { name: "立夏", type: "节气" },
+      "2025-05-21": { name: "小满", type: "节气" },
+      "2025-06-05": { name: "芒种", type: "节气" },
+      "2025-06-21": { name: "夏至", type: "节气" },
+      "2025-07-07": { name: "小暑", type: "节气" },
+      "2025-07-22": { name: "大暑", type: "节气" },
+      "2025-08-07": { name: "立秋", type: "节气" },
+      "2025-08-23": { name: "处暑", type: "节气" },
+      "2025-09-07": { name: "白露", type: "节气" },
+      "2025-09-22": { name: "秋分", type: "节气" },
+      "2025-10-08": { name: "寒露", type: "节气" },
+      "2025-10-23": { name: "霜降", type: "节气" },
+      "2025-11-07": { name: "立冬", type: "节气" },
+      "2025-11-22": { name: "小雪", type: "节气" },
+      "2025-12-07": { name: "大雪", type: "节气" },
+      "2025-12-22": { name: "冬至", type: "节气" }
+    }
+  };
+
+  function updateHolidays() {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = (now.getMonth() + 1).toString().padStart(2, '0');
+    const currentDate = now.getDate().toString().padStart(2, '0');
+    const today = `${currentYear}-${currentMonth}-${currentDate}`;
+    
+    // 收集所有即将到来的节日
+    const upcomingHolidays: Holiday[] = [];
+    
+    // 检查固定节日
+    Object.entries(FESTIVALS.FIXED).forEach(([date, festival]) => {
+      const [month, day] = date.split('-');
+      const festivalDate = new Date(currentYear, parseInt(month) - 1, parseInt(day));
+      if (festivalDate < now) {
+        festivalDate.setFullYear(currentYear + 1);
+      }
+      upcomingHolidays.push({
+        name: festival.name,
+        type: festival.type,
+        date: festivalDate,
+        daysLeft: Math.ceil((festivalDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+      });
+    });
+    
+    // 检查传统节日和节气
+    [...Object.entries(FESTIVALS.TRADITIONAL), ...Object.entries(FESTIVALS.SOLAR_TERMS)].forEach(([date, festival]) => {
+      const festivalDate = new Date(date);
+      if (festivalDate > now) {
+        upcomingHolidays.push({
+          name: festival.name,
+          type: festival.type,
+          date: festivalDate,
+          daysLeft: Math.ceil((festivalDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+        });
+      }
+    });
+    
+    // 按日期排序
+    upcomingHolidays.sort((a, b) => a.daysLeft - b.daysLeft);
+    
+    // 分离春节和其他节日
+    const springFestival = upcomingHolidays.find(h => h.name === "春节");
+    const otherHolidays = upcomingHolidays.filter(h => h.name !== "春节").slice(0, 3);
+    
+    // 更新春节倒计时
+    const springFestivalElement = document.getElementById('spring-festival');
+    if (springFestivalElement && springFestival) {
+      springFestivalElement.innerHTML = `
+        <div class="text-center">
+          <div class="text-lg font-medium text-red-600 mb-2">距离春节</div>
+          <div class="text-4xl font-bold text-red-600 mb-2">
+            ${springFestival.daysLeft}
+            <span class="text-base ml-1">天</span>
+          </div>
+          <div class="text-sm text-gray-600">
+            ${springFestival.date.getFullYear()}年${springFestival.date.getMonth() + 1}月${springFestival.date.getDate()}日
+          </div>
+        </div>
+      `;
+    }
+    
+    // 更新其他节日列表
+    const otherHolidaysElement = document.getElementById('other-holidays');
+    if (otherHolidaysElement) {
+      otherHolidaysElement.innerHTML = `
+        <div class="space-y-3">
+          ${otherHolidays.map(holiday => `
+            <div class="flex items-center text-sm">
+              <div class="w-2 h-2 rounded-full ${getTypeColor(holiday.type)} mr-2"></div>
+              <div class="flex-1">
+                <div class="flex items-center justify-between">
+                  <span class="${getTypeTextColor(holiday.type)}">
+                    ${holiday.name}
+                  </span>
+                  <span class="text-gray-500">
+                    ${holiday.daysLeft}天
+                  </span>
+                </div>
+                <div class="text-gray-400 text-xs mt-0.5">
+                  ${formatDate(holiday.date)}
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
   }
-  
-  .bg-gradient-to-br:hover {
-    transform: translateY(-2px);
+
+  function getTypeColor(type: string): string {
+    switch (type) {
+      case '法定':
+        return 'bg-green-500';
+      case '传统':
+        return 'bg-red-500';
+      case '节气':
+        return 'bg-blue-500';
+      default:
+        return 'bg-gray-500';
+    }
+  }
+
+  function getTypeTextColor(type: string): string {
+    switch (type) {
+      case '法定':
+        return 'text-green-600';
+      case '传统':
+        return 'text-red-600';
+      case '节气':
+        return 'text-blue-600';
+      default:
+        return 'text-gray-600';
+    }
+  }
+
+  function formatDate(date: Date): string {
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${month}.${day}`;
+  }
+
+  // 初始更新
+  updateHolidays();
+
+  // 每天凌晨更新一次
+  setInterval(() => {
+    const now = new Date();
+    if (now.getHours() === 0 && now.getMinutes() === 0) {
+      updateHolidays();
+    }
+  }, 60000); // 每分钟检查一次
+</script>
+
+<style>
+  .holiday-counter {
+    min-height: 200px;
   }
 </style>

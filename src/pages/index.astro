@@ -6,11 +6,12 @@ import SearchBox from '../components/SearchBox.astro';
 import HolidayCounter from '../components/HolidayCounter.astro';
 import Calendar from '../components/Calendar.astro';
 import Calculator from '../components/Calculator.astro';
+import Footer from '../components/Footer.astro';
 
 import getSiteData from '../data/sites';
 
-const pageTitle = "发现导航 - 优质网站与实用工具导航平台";
-const pageDescription = "发现导航是一个集成了实用工具和优质网站的导航平台，提供节假日提醒、在线工具和精选网站导航等功能，帮助用户快速找到所需的在线资源。";
+const pageTitle = `${import.meta.env.PUBLIC_WEBSITE_NAME} - 优质网站与实用工具导航平台`;
+const pageDescription = `${import.meta.env.PUBLIC_WEBSITE_NAME}是一个集成了实用工具和优质网站的导航平台，提供节假日提醒、在线工具和精选网站导航等功能，帮助用户快速找到所需的在线资源。`;
 ---
 
 <Layout 
@@ -151,6 +152,9 @@ const pageDescription = "发现导航是一个集成了实用工具和优质网�
           <SiteDisplay client:load />
         </section>
       </section>
+
+      <!-- Footer -->
+      <Footer />
     </main>
   </div>
 

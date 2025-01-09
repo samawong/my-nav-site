@@ -1,5 +1,8 @@
 import { rawSiteData } from '../data/data.js';
-import { encryptData } from '../src/utils/crypto.js';
+import CryptoJS from 'crypto-js';
+
+const SECRET_KEY = 'samawong_xiaomi_20250107';
+
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -8,6 +11,10 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const encryptData = (data: any): string => {
+    const jsonString = JSON.stringify(data);
+    return CryptoJS.AES.encrypt(jsonString, SECRET_KEY).toString();
+  };
 // 加密数据
 const encryptedData = encryptData(rawSiteData);
 
