@@ -1,0 +1,61 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Sidebar from "../components/Sidebar.astro";
+import Footer from "../components/Footer.astro";
+
+import getSiteData from "../data/sites";
+
+const pageTitle = `${import.meta.env.PUBLIC_WEBSITE_NAME} - 优质网站与实用工具导航平台`;
+const pageDescription = `${import.meta.env.PUBLIC_WEBSITE_NAME}是一个集成了实用工具和优质网站的导航平台，提供节假日提醒、在线工具和精选网站导航等功能，帮助用户快速找到所需的在线资源。`;
+---
+
+<Layout
+    title={pageTitle}
+    description={pageDescription}
+    keywords="网站导航,实用工具,在线工具,优质网站,开发工具,学习资源,节假日提醒,在线计算器"
+>
+    <div class="flex h-screen bg-gray-100">
+        <aside class="sidebar" role="navigation" aria-label="网站导航">
+            <Sidebar activeSites={getSiteData} />
+        </aside>
+
+        <div class="relative w-full h-screen overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-full transition-colors duration-500 bg-white dark:bg-black">
+               <div class="absolute bottom-[-100px] left-0 w-full h-[200px] bg-gray-100 dark:bg-gray-800 filter blur-[50px] transition-transform duration-1000 transform-translate-y-0 dark:translate-y-[-50px] fog"></div>
+                 <div class="absolute top-0 left-0 w-full h-full pointer-events-none opacity-0 dark:opacity-100 transition-opacity duration-500 night-elements">
+                     <div class="absolute w-[4px] h-[4px] rounded-full bg-white opacity-60 animate-firefly-move animate-firefly-flicker top-[20%] left-[20%] firefly-1"></div>
+                     <div class="absolute w-[4px] h-[4px] rounded-full bg-white opacity-60 animate-firefly-move  animate-firefly-flicker top-[50%] left-[70%] firefly-2 delay-300"></div>
+                       <div class="absolute w-[4px] h-[4px] rounded-full bg-white opacity-60 animate-firefly-move  animate-firefly-flicker top-[80%] left-[30%] firefly-3 delay-500"></div>
+                 </div>
+           </div>
+             <div class="relative z-10 text-center pt-[20%] text-gray-800 transition-colors duration-500 dark:text-white content">
+                 <h1>Welcome to My Site</h1>
+                 <button id="toggle-mode" class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 py-2 px-4 rounded transition duration-200">Toggle Dark Mode</button>
+          </div>
+        </div>
+    </div>
+    <Footer />
+</Layout>
+
+<script>
+    const toggleModeButton = document.getElementById('toggle-mode');
+    const background = document.querySelector('.bg-gradient-to-b');
+    const content = document.querySelector('.content');
+    
+    let isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (toggleModeButton && background && content) {
+        updateDarkMode(isDarkMode);
+        
+        toggleModeButton.addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            updateDarkMode(isDarkMode);
+        });
+    }
+    
+    function updateDarkMode(isDark: boolean) {
+        document.documentElement.classList.toggle('dark', isDark);
+        background?.classList.toggle('dark', isDark);
+        content?.classList.toggle('dark', isDark);
+    }
+</script>
