@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://{import.meta.env.PUBLIC_DOMAIN}/sitemap.xml 
+Sitemap: https://nav.miandrui.com/sitemap.xml 
